@@ -25,4 +25,16 @@ router.get("/:slug", async (req, res) => {
   }
 });
 
+router.post("/", async (req, res) => {
+  try {
+    const newItem = new MenuItem(req.body);
+    await newItem.save();
+    res.status(201).json(newItem);
+  } catch (err) {
+    res
+      .status(400)
+      .json({ message: "Error adding menu item", error: err.message });
+  }
+});
+
 module.exports = router;
