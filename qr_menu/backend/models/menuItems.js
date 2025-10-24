@@ -1,4 +1,5 @@
 const mongoose = require("mongoose");
+const { URL } = require("url");
 
 const menuItemSchema = new mongoose.Schema({
   name: { type: String, required: true },
@@ -6,6 +7,7 @@ const menuItemSchema = new mongoose.Schema({
   price: { type: Number, required: true },
   category: String,
   availability: { type: Boolean, default: true },
+  imageUrl:{type: String , default: null}
 });
 
 const MenuItem = mongoose.model("MenuItem", menuItemSchema);
