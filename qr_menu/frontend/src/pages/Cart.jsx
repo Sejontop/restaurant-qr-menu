@@ -1,15 +1,32 @@
 // frontend/src/pages/Cart.js
-import React, { useContext, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import React, { useContext, useState, useEffect } from 'react';
+import { useNavigate , useLocation} from 'react-router-dom';
 import { CartContext } from '../context/CartContext';
+
 
 const API_URL = import.meta.env.REACT_APP_API_URL || 'http://localhost:3000/api/menu/:qrSlug';
 
+
 function Cart() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { cart, tableInfo, updateQuantity, removeFromCart, clearCart, getTotal } = useContext(CartContext);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+
+  // Debug: Log table info on component mount
+  useEffect(() => {
+    console.log('Cart - tableInfo:', tableInfo);
+    console.log('Cart - localStorage tableInfo:', localStorage.getItem('tableSlug'));
+    
+    // If no table info, check if we came from a menu page
+    if (!tableInfo) {
+      const savedTable = localStorage.getItem('tableInfo');
+      if (!savedTable) {
+        setError('Table information is missing. Please scan the QR code again.');
+      }
+    }
+  }, [tableInfo]);
 
   const handlePlaceOrder = async () => {
     if (!tableInfo) {
@@ -35,7 +52,7 @@ function Cart() {
         headers['Authorization'] = `Bearer ${token}`;
       }
 
-      const response = await fetch(`${API_URL}/orders`, {
+      const response = await fetch(`http://localhost:3000/api/orders/${tableInfo.tableNumber}/orders`, {
         method: 'POST',
         headers,
         body: JSON.stringify({
@@ -53,7 +70,7 @@ function Cart() {
       clearCart();
       
       // Navigate to order status page
-      const orderId = data._id;
+      const orderId = data.order._id;
       const guestToken = data.guestToken;
       
       if (guestToken) {

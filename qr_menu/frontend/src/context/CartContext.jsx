@@ -70,8 +70,14 @@ export const CartProvider = ({ children }) => {
   };
 
   const setTable = (table) => {
+    console.log('CartContext - Setting table:', table);
     setTableInfo(table);
-    localStorage.setItem('tableInfo', JSON.stringify(table));
+    if (table && table._id) {
+      localStorage.setItem('tableInfo', JSON.stringify(table));
+      console.log('CartContext - Table saved to localStorage:', localStorage.getItem('tableInfo'));
+    } else {
+      console.warn('CartContext - Invalid table data, not saving to localStorage');
+    }
   };
 
   const getTotal = () => {

@@ -2,7 +2,7 @@ import React, { createContext, useState, useEffect } from 'react';
 
 export const AuthContext = createContext();
 
-const API_URL = import.meta.env.REACT_APP_API_URL || 'http://localhost:3000/api/menu/:qrSlug';
+const API_URL = import.meta.env.REACT_APP_API_URL || 'http://localhost:3000/api/menu';
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -40,3 +40,5 @@ export const AuthProvider = ({ children }) => {
     </AuthContext.Provider>
   );
 };
+
+

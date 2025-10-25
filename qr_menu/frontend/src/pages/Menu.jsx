@@ -5,6 +5,7 @@ import { CartContext } from '../context/CartContext';
 
 const API_URL = import.meta.env.REACT_APP_API_URL || 'http://localhost:3000/api/menu';
 
+
 function Menu() {
   const { qrSlug } = useParams();
   const navigate = useNavigate();
@@ -17,8 +18,6 @@ function Menu() {
   const [loading, setLoading] = useState(true);
   const [tableInfo, setTableInfo] = useState(null);
 
-  
-
   useEffect(() => {
     loadTableInfo();
     loadCategories();
@@ -29,12 +28,25 @@ function Menu() {
     loadMenuItems();
   }, [selectedCategory, searchTerm]);
 
+  useEffect(()=>{
+    let tableNumber = qrSlug.split()
+  },[])
+
   const loadTableInfo = async () => {
     try {
-      const response = await fetch(`${API_URL}/tables/slug/${qrSlug}`);
+      const response = await fetch(`http://localhost:3000/api/tables/number/${qrSlug}`);
       const data = await response.json();
-      setTableInfo(data);
-      setTable(data);
+      
+      console.log('Table info loaded:', data);
+      
+      if (response.ok && data._id) {
+        setTableInfo(data);
+        setTable(data);
+        // Double-check localStorage
+        console.log('Table info saved to localStorage:', localStorage.getItem('tableInfo'));
+      } else {
+        console.error('Invalid table data received:', data);
+      }
     } catch (error) {
       console.error('Error loading table:', error);
     }
@@ -58,10 +70,10 @@ function Menu() {
       if (searchTerm) params.append('search', searchTerm);
       params.append('limit', '50'); // Load more items
       
-      const response = await fetch(`${API_URL}/items?${params}`);
+      const response = await fetch(`${API_URL}/items?${params}`); //not {API_URL}/menu/items cause menu/menu is coming two times
       const data = await response.json();
       console.log(data)
-      setItems(data.menu);
+      setItems(data.menu);  //not data.items
     } catch (error) {
       console.error('Error loading menu items:', error);
     } finally {

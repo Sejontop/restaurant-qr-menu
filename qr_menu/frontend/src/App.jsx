@@ -9,27 +9,27 @@ import { CartProvider } from './context/CartContext';
 // import Register from './pages/Register';
 import Menu from './pages/Menu';
 import Cart from './pages/Cart';
-// import OrderStatus from './pages/OrderStatus';
+import OrderStatus from './pages/OrderStatus';
 // import StaffDashboard from './pages/StaffDashboard';
 // import AdminDashboard from './pages/AdminDashboard';
 // import MenuManager from './pages/MenuManager';
 // import TableManager from './pages/TableManager';
 
 // Protected Route Component (for Staff and Admin only)
-const ProtectedRoute = ({ children, allowedRoles }) => {
-  const token = localStorage.getItem('token');
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
+// const ProtectedRoute = ({ children, allowedRoles }) => {
+//   const token = localStorage.getItem('token');
+//   const user = JSON.parse(localStorage.getItem('user') || '{}');
   
-  if (!token) {
-    return <Navigate to="/login" />;
-  }
+//   if (!token) {
+//     return <Navigate to="/login" />;
+//   }
   
-  if (allowedRoles && !allowedRoles.includes(user.role)) {
-    return <Navigate to="/login" />;
-  }
+//   if (allowedRoles && !allowedRoles.includes(user.role)) {
+//     return <Navigate to="/login" />;
+//   }
   
-  return children;
-};
+//   return children;
+// };
 
 function App() {
   return (
@@ -38,12 +38,13 @@ function App() {
         <Router>
           <Routes>
             {/* Public Routes - No login required for customers */}
+            <Route path="/menu/:qrSlug" element={<Menu />} />
             <Route path="/m/:qrSlug" element={<Menu />} />
             <Route path="/cart" element={<Cart />} />
-            {/* <Route path="/order/:orderId" element={<OrderStatus />} /> */}
+            <Route path="/order/:orderId" element={<OrderStatus />} />
             
-            {/* Auth Routes */}
-            {/* <Route path="/login" element={<Login />} />
+            {/* Auth Routes*/}
+            {/*<Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} /> */}
             
             {/* Staff Routes - Login Required */}
@@ -57,7 +58,7 @@ function App() {
             />
             
             {/* Admin Routes - Login Required */}
-            {/*<Route 
+           {/* <Route 
               path="/admin" 
               element={
                 <ProtectedRoute allowedRoles={['admin']}>
@@ -83,7 +84,7 @@ function App() {
             />
             
             {/* Default Route */}
-            {/* <Route path="/" element={<Navigate to="/login" />} />  */}
+           {/* <Route path="/" element={<Navigate to="/login" />} /> */}
           </Routes>
         </Router>
       </CartProvider>
