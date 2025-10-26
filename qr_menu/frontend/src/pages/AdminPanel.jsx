@@ -22,7 +22,7 @@ function AdminPanel() {
   const [itemForm, setItemForm] = useState({
     name: '', description: '', price: '', categoryId: '', imageUrl: '', availability: true, tags: ''
   });
-  const [tableForm, setTableForm] = useState({ number: '', qrSlug: '' });
+  const [tableForm, setTableForm] = useState({ tableNumber: '', qrSlug: '' });
 
   useEffect(() => {
     loadData();
@@ -44,7 +44,7 @@ function AdminPanel() {
 
       const [catRes, itemRes, tableRes] = await Promise.all([
         fetch(`${API_URL}/menu/categories/all`),
-        fetch(`${API_URL}/menu/items/search?availability=`),
+        fetch(`${API_URL}/menu/items/search`),
         fetch(`${API_URL}/tables`, { headers: getAuthHeaders() })
       ]);
 
@@ -57,6 +57,10 @@ function AdminPanel() {
       const catData = await catRes.json();
       const itemData = await itemRes.json();
       const tableData = await tableRes.json();
+
+      console.log('Menu items data:', itemData); // Debug
+    console.log('Tables data:', tableData); // Debug
+    console.log("categories",catData);
 
       setCategories(catData.categories || []);
       setMenuItems(itemData.items || []);
@@ -121,23 +125,30 @@ function AdminPanel() {
     }
   };
 
-  const handleSaveTable = async (e) => {
-    e.preventDefault();
-    try {
-      const response = await fetch(`${API_URL}/tables`, {
-        method: 'POST',
-        headers: getAuthHeaders(),
-        body: JSON.stringify(tableForm)
-      });
+ const handleSaveTable = async (e) => {
+  e.preventDefault();
+  try {
+    // Convert tableNumber to a number before sending
+    const tableData = {
+      ...tableForm,
+      tableNumber: Number(tableForm.tableNumber) // ✅ ensures it's a number
+    };
 
-      if (!response.ok) throw new Error('Failed to create');
+    const response = await fetch(`${API_URL}/tables`, {
+      method: 'POST',
+      headers: getAuthHeaders(),
+      body: JSON.stringify(tableData)
+    });
 
-      loadData();
-      closeModal();
-    } catch (error) {
-      alert('Failed to create table');
-    }
-  };
+    if (!response.ok) throw new Error('Failed to create');
+
+    loadData();
+    closeModal();
+  } catch (error) {
+    alert('Failed to create table');
+  }
+};
+
 
   const handleDelete = async (type, id) => {
     if (!window.confirm(`Delete this ${type}?`)) return;
@@ -180,6 +191,30 @@ function AdminPanel() {
     }
   };
 
+useEffect(() => {
+  const fetchTables = async () => {
+    try {
+      const res = await fetch('http://localhost:3000/api/tables');
+      const data = await res.json();
+
+      console.log('Tables data:', data); //  confirms backend data
+
+      if (res.ok && Array.isArray(data)) {
+        setTables(data); //  store tables in state
+      } else if (res.ok && data.tables) {
+        // in case backend returns { success: true, tables: [...] }
+        setTables(data.tables);
+      } else {
+        console.error('Unexpected table data structure:', data);
+      }
+    } catch (err) {
+      console.error('Error fetching tables:', err);
+    }
+  };
+
+  fetchTables();
+}, []);
+
   const downloadQR = async (tableId, tableNumber) => {
     try {
       const response = await fetch(`${API_URL}/tables/${tableId}/qr`, {
@@ -217,7 +252,7 @@ function AdminPanel() {
         name: '', description: '', price: '', categoryId: '', imageUrl: '', availability: true, tags: ''
       });
     } else if (type === 'table') {
-      setTableForm({ number: '', qrSlug: '' });
+      setTableForm({ tableNumber: '', qrSlug: '' });
     }
 
     setShowModal(true);
@@ -395,17 +430,20 @@ function AdminPanel() {
                   + Add Table
                 </button>
               </div>
+{console.log('Rendering tables:', tables)}
 
               <div style={styles.grid}>
                 {tables.map(table => (
                   <div key={table._id} style={styles.tableCard}>
+                 
                     <div style={styles.tableCardHeader}>
-                      <h3 style={styles.tableNumber}>🪑 Table {table.number}</h3>
+                        
+                      <h3 style={styles.tableNumber}>🪑 Table {table.tableNumber}</h3>
                       <span style={styles.tableSlug}>{table.qrSlug}</span>
                     </div>
                     <button
                       style={styles.qrButton}
-                      onClick={() => downloadQR(table._id, table.number)}
+                      onClick={() => downloadQR(table._id, table.tableNumber)}
                     >
                       📥 Download QR Code
                     </button>
@@ -554,33 +592,33 @@ function AdminPanel() {
               </form>
             )}
 
-            {modalType === 'table' && (
-              <form onSubmit={handleSaveTable} style={styles.form}>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>Table Number *</label>
-                  <input
-                    type="number"
-                    style={styles.input}
-                    value={tableForm.number}
-                    onChange={(e) => setTableForm({ ...tableForm, number: e.target.value })}
-                    required
-                  />
-                </div>
-                <div style={styles.formGroup}>
-                  <label style={styles.label}>QR Slug (optional)</label>
-                  <input
-                    style={styles.input}
-                    value={tableForm.qrSlug}
-                    onChange={(e) => setTableForm({ ...tableForm, qrSlug: e.target.value })}
-                    placeholder="Leave blank for auto-generate"
-                  />
-                </div>
-                <div style={styles.modalActions}>
-                  <button type="button" style={styles.cancelButton} onClick={closeModal}>Cancel</button>
-                  <button type="submit" style={styles.saveButton}>Create</button>
-                </div>
-              </form>
-            )}
+{modalType === 'table' && (
+  <form onSubmit={handleSaveTable} style={styles.form}>
+    <div style={styles.formGroup}>
+      <label style={styles.label}>Table Number *</label>
+      <input
+        type="number"
+        style={styles.input}
+        value={tableForm.tableNumber} // Changed from number to tableNumber
+        onChange={(e) => setTableForm({ ...tableForm, tableNumber: e.target.value })} // Changed
+        required
+      />
+    </div>
+    <div style={styles.formGroup}>
+      <label style={styles.label}>QR Slug (optional)</label>
+      <input
+        style={styles.input}
+        value={tableForm.qrSlug}
+        onChange={(e) => setTableForm({ ...tableForm, qrSlug: e.target.value })}
+        placeholder="Leave blank for auto-generate"
+      />
+    </div>
+    <div style={styles.modalActions}>
+      <button type="button" style={styles.cancelButton} onClick={closeModal}>Cancel</button>
+      <button type="submit" style={styles.saveButton}>Create</button>
+    </div>
+  </form>
+)}
           </div>
         </div>
       )}

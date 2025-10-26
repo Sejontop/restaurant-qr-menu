@@ -18,22 +18,28 @@ router.get('/m/:tableIdentifier', async (req, res) => {
   try {
     const { tableIdentifier } = req.params;
 
-    let table;
-    // Check if tableIdentifier is a number
+    let table = null;
+
+    // Check if tableIdentifier is a number (like "1")
     if (!isNaN(tableIdentifier)) {
       table = await Table.findOne({ tableNumber: Number(tableIdentifier) });
     } else {
+      // Otherwise, treat it as qrSlug (like "cAngetAI")
       table = await Table.findOne({ qrSlug: tableIdentifier });
     }
 
-    if (!table) return res.status(404).json({ message: 'Table not found' });
+    // If no table found
+    if (!table) {
+      return res.status(404).json({ success: false, message: 'Table not found' });
+    }
 
-    res.json(table);
+    res.json({ success: true, table });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Server error' });
+    console.error('Error fetching table by identifier:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
   }
 });
+
 
 // 🟢 Add a new table
 router.post('/', async (req, res) => {

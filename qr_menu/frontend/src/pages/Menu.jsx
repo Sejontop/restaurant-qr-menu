@@ -5,7 +5,6 @@ import { CartContext } from '../context/CartContext';
 
 const API_URL = import.meta.env.REACT_APP_API_URL || 'http://localhost:3000/api/menu';
 
-
 function Menu() {
   const { qrSlug, tableNumber } = useParams();
   const navigate = useNavigate();
@@ -20,57 +19,28 @@ function Menu() {
 
   const tableIdentifier = qrSlug || tableNumber;
 
- useEffect(() => {
-  loadTableInfo();
-  loadCategories();
-  loadMenuItems();
-}, [tableIdentifier]); // instead of [qrSlug]
+  // Load functions defined inside the component so they are available to hooks
+  const loadTableInfo = async () => {
+    try {
+      if (!tableIdentifier) return;
+      const response = await fetch(`http://localhost:3000/api/tables/m/${tableIdentifier}`);
+      const data = await response.json();
 
-  useEffect(() => {
-    loadMenuItems();
-  }, [selectedCategory, searchTerm]);
+      console.log('Fetched table data:', data);
 
-  useEffect(()=>{
-    let tableNumber = qrSlug.split()
-  },[])
+      if (response.ok && data && data.table) {
+  localStorage.setItem('tableInfo', JSON.stringify(data.table));
+  setTableInfo(data.table);
+  setTable(data.table);
+  console.log('✅ Table info saved:', data.table);
+} else {
+  console.error('❌ Invalid table data received:', data);
+}
 
-  // const loadTableInfo = async () => {
-  //   try {
-  //     const response = await fetch(`http://localhost:3000/api/tables/number/${qrSlug}`);
-  //     const data = await response.json();
-      
-  //     console.log('Table info loaded:', data);
-      
-  //     if (response.ok && data._id) {
-  //       setTableInfo(data);
-  //       setTable(data);
-  //       // Double-check localStorage
-  //       console.log('Table info saved to localStorage:', localStorage.getItem('tableInfo'));
-  //     } else {
-  //       console.error('Invalid table data received:', data);
-  //     }
-  //   } catch (error) {
-  //     console.error('Error loading table:', error);
-  //   }
-  // };
-const loadTableInfo = async () => {
-  if (!tableIdentifier) return;
-
-  try {
-    const response = await fetch(`http://localhost:3000/api/tables/number/${tableIdentifier}`);
-    const data = await response.json();
-    
-    if (response.ok && data._id) {
-      setTableInfo(data);
-      setTable(data);
-      console.log('Table info saved to localStorage:', localStorage.getItem('tableInfo'));
-    } else {
-      console.error('Invalid table data received:', data);
+    } catch (error) {
+      console.error('Error loading table:', error);
     }
-  } catch (error) {
-    console.error('Error loading table:', error);
-  }
-};
+  };
 
   const loadCategories = async () => {
     try {
@@ -92,14 +62,27 @@ const loadTableInfo = async () => {
       
       const response = await fetch(`${API_URL}/items?${params}`); //not {API_URL}/menu/items cause menu/menu is coming two times
       const data = await response.json();
-      console.log(data)
-      setItems(data.menu);  //not data.items
+      console.log(data);
+      setItems(data.menu || []);  // fallback to empty array
     } catch (error) {
       console.error('Error loading menu items:', error);
     } finally {
       setLoading(false);
     }
   };
+
+  useEffect(() => {
+    // initial loads whenever the table identifier changes
+    loadTableInfo();
+    loadCategories();
+    loadMenuItems();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tableIdentifier]);
+
+  useEffect(() => {
+    loadMenuItems();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedCategory, searchTerm]);
 
   const handleAddToCart = (item) => {
     addToCart(item, 1);

@@ -114,7 +114,7 @@ router.post('/:tableParam/orders', async (req, res) => {
 router.get('/:orderId', async (req, res) => {
   try {
     const order = await Order.findById(req.params.orderId)
-      .populate('table', 'tableNumber')
+      .populate('table', 'tableNumber qrSlug')
       .populate('items.menuItemId', 'name price');
 
     if (!order) {

@@ -14,6 +14,9 @@ function OrderStatus() {
   const [error, setError] = useState("");
 
   const steps = ["pending", "placed", "preparing", "ready", "served"];
+  
+  const tableIdentifier = order?.table?.tableNumber || order?.table?.qrSlug;
+
 
   const summary = useMemo(() => {
     if (!order || !order.items) return { subtotal: 0, gst: 0, total: 0 };
@@ -29,6 +32,8 @@ function OrderStatus() {
 
     return { subtotal, gst, total };
   }, [order]);
+
+
 
   useEffect(() => {
     loadOrder();
@@ -125,7 +130,7 @@ function OrderStatus() {
         <div style={styles.errorContainer}>
           <span style={styles.errorIcon}>😕</span>
           <p style={styles.errorText}>{error || "Order not found"}</p>
-          <button style={styles.backButton} onClick={() => navigate("/")}>
+          <button style={styles.backButton} onClick={() => navigate(`/m/${tableIdentifier}`)}>
             Back to Menu
           </button>
         </div>
@@ -140,7 +145,7 @@ function OrderStatus() {
       {/* Header */}
       <div style={styles.header}>
         <h1 style={styles.title}>Order Status</h1>
-        <button style={styles.closeButton} onClick={() => navigate("/")}>
+        <button style={styles.closeButton} onClick={() => navigate(`/m/${tableIdentifier}`)}>
           ← Back to Menu
         </button>
       </div>
