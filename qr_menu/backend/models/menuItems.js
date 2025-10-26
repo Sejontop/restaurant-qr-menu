@@ -5,10 +5,16 @@ const menuItemSchema = new mongoose.Schema({
   name: { type: String, required: true },
   description: String,
   price: { type: Number, required: true },
-  category: String,
+  category: String, 
+  categoryId: { 
+    type: mongoose.Schema.Types.ObjectId, 
+    ref: 'MenuCategory',
+    required: true 
+  },
   availability: { type: Boolean, default: true },
-  imageUrl:{type: String , default: null}
-});
+  imageUrl:{type: String , default: null},
+  tags: [String]
+}, { timestamps: true });
 
 const MenuItem = mongoose.model("MenuItem", menuItemSchema);
 

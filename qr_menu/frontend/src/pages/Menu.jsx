@@ -54,7 +54,7 @@ function Menu() {
 
   const loadCategories = async () => {
     try {
-      const response = await fetch(`${API_URL}/menu/categories`);
+      const response = await fetch(`${API_URL}/categories`);
       const data = await response.json();
       setCategories(data);
     } catch (error) {
@@ -135,30 +135,30 @@ function Menu() {
           />
         </div>
 
-        {/* Category Pills */}
-        <div style={styles.categoriesWrapper}>
-          <button
-            onClick={() => setSelectedCategory('')}
-            style={{
-              ...styles.categoryPill,
-              ...(selectedCategory === '' ? styles.categoryPillActive : {})
-            }}
-          >
-            ⭐ All Items
-          </button>
-          {categories.map(category => (
-            <button
-              key={category._id}
-              onClick={() => setSelectedCategory(category._id)}
-              style={{
-                ...styles.categoryPill,
-                ...(selectedCategory === category._id ? styles.categoryPillActive : {})
-              }}
-            >
-              {getCategoryEmoji(category.name)} {category.name}
-            </button>
-          ))}
-        </div>
+{/* Category Pills */}
+<div style={styles.categoriesWrapper}>
+  <button
+    onClick={() => setSelectedCategory('')}
+    style={{
+      ...styles.categoryPill,
+      ...(selectedCategory === '' ? styles.categoryPillActive : {})
+    }}
+  >
+    ⭐ All Items
+  </button>
+  {Array.isArray(categories) && categories.map(category => (
+    <button
+      key={category._id}
+      onClick={() => setSelectedCategory(category._id)}
+      style={{
+        ...styles.categoryPill,
+        ...(selectedCategory === category._id ? styles.categoryPillActive : {})
+      }}
+    >
+      {getCategoryEmoji(category.name)} {category.name}
+    </button>
+  ))}
+</div>
 
         {/* Items Count */}
         {!loading && (

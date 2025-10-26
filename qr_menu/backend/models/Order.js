@@ -12,7 +12,11 @@ const orderSchema = new mongoose.Schema({
     }
   ],
   totalPrice: { type: Number, required: true },
-  status: { type: String, default: 'pending' },
+  status: {
+  type: String,
+  enum: ['pending', 'placed', 'preparing', 'ready', 'served', 'canceled'],
+  default: 'pending'
+},
   createdAt: { type: Date, default: Date.now }
 });
 
