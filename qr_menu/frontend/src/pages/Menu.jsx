@@ -7,7 +7,7 @@ const API_URL = import.meta.env.REACT_APP_API_URL || 'http://localhost:3000/api/
 
 
 function Menu() {
-  const { qrSlug } = useParams();
+  const { qrSlug, tableNumber } = useParams();
   const navigate = useNavigate();
   const { cart, addToCart, setTable } = useContext(CartContext);
   
@@ -18,11 +18,13 @@ function Menu() {
   const [loading, setLoading] = useState(true);
   const [tableInfo, setTableInfo] = useState(null);
 
-  useEffect(() => {
-    loadTableInfo();
-    loadCategories();
-    loadMenuItems();
-  }, [qrSlug]);
+  const tableIdentifier = qrSlug || tableNumber;
+
+ useEffect(() => {
+  loadTableInfo();
+  loadCategories();
+  loadMenuItems();
+}, [tableIdentifier]); // instead of [qrSlug]
 
   useEffect(() => {
     loadMenuItems();
@@ -32,25 +34,43 @@ function Menu() {
     let tableNumber = qrSlug.split()
   },[])
 
-  const loadTableInfo = async () => {
-    try {
-      const response = await fetch(`http://localhost:3000/api/tables/number/${qrSlug}`);
-      const data = await response.json();
+  // const loadTableInfo = async () => {
+  //   try {
+  //     const response = await fetch(`http://localhost:3000/api/tables/number/${qrSlug}`);
+  //     const data = await response.json();
       
-      console.log('Table info loaded:', data);
+  //     console.log('Table info loaded:', data);
       
-      if (response.ok && data._id) {
-        setTableInfo(data);
-        setTable(data);
-        // Double-check localStorage
-        console.log('Table info saved to localStorage:', localStorage.getItem('tableInfo'));
-      } else {
-        console.error('Invalid table data received:', data);
-      }
-    } catch (error) {
-      console.error('Error loading table:', error);
+  //     if (response.ok && data._id) {
+  //       setTableInfo(data);
+  //       setTable(data);
+  //       // Double-check localStorage
+  //       console.log('Table info saved to localStorage:', localStorage.getItem('tableInfo'));
+  //     } else {
+  //       console.error('Invalid table data received:', data);
+  //     }
+  //   } catch (error) {
+  //     console.error('Error loading table:', error);
+  //   }
+  // };
+const loadTableInfo = async () => {
+  if (!tableIdentifier) return;
+
+  try {
+    const response = await fetch(`http://localhost:3000/api/tables/number/${tableIdentifier}`);
+    const data = await response.json();
+    
+    if (response.ok && data._id) {
+      setTableInfo(data);
+      setTable(data);
+      console.log('Table info saved to localStorage:', localStorage.getItem('tableInfo'));
+    } else {
+      console.error('Invalid table data received:', data);
     }
-  };
+  } catch (error) {
+    console.error('Error loading table:', error);
+  }
+};
 
   const loadCategories = async () => {
     try {
@@ -104,7 +124,7 @@ function Menu() {
             🍽️ Delicious Menu
           </h1>
           <p style={styles.heroSubtitle}>
-            {tableInfo ? `Table ${tableInfo.number} | ` : ''}Fresh & Tasty
+            {tableInfo ? `Table ${tableInfo.tableNumber} | ` : ''}Fresh & Tasty
           </p>
         </div>
         

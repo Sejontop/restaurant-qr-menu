@@ -6,6 +6,11 @@ const tableSchema = new mongoose.Schema({
     required: true,
     unique: true
   },
+   qrSlug: {
+    type: String,
+    unique: true, // ensures no two tables share the same QR slug
+    required: true
+  },
   isOccupied: {
     type: Boolean,
     default: false
@@ -15,7 +20,9 @@ const tableSchema = new mongoose.Schema({
     ref: 'Order', // assuming you'll create an Order model
     default: null
   }
-}, {
+},
+
+ {
   timestamps: true
 });
 // Index for quick QR lookups

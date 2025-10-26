@@ -40,6 +40,7 @@ function App() {
             {/* Public Routes - No login required for customers */}
             <Route path="/menu/:qrSlug" element={<Menu />} />
             <Route path="/m/:qrSlug" element={<Menu />} />
+            <Route path="/m/:tableNumber" element={<Menu/>}></Route>
             <Route path="/cart" element={<Cart />} />
             <Route path="/order/:orderId" element={<OrderStatus />} />
             

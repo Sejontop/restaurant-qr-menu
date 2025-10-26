@@ -4,7 +4,7 @@ import { useNavigate , useLocation} from 'react-router-dom';
 import { CartContext } from '../context/CartContext';
 
 
-const API_URL = import.meta.env.REACT_APP_API_URL || 'http://localhost:3000/api/menu/:qrSlug';
+const API_URL = import.meta.env.REACT_APP_API_URL || 'http://localhost:3000/api/menu/:tableIdentifier';
 
 
 function Cart() {
@@ -119,7 +119,7 @@ function Cart() {
       {tableInfo && (
         <div style={styles.tableInfo}>
           <span style={styles.tableIcon}>🪑</span>
-          <span>Table {tableInfo.number}</span>
+          <span>Table {tableInfo.tableNumber}</span>
         </div>
       )}
 

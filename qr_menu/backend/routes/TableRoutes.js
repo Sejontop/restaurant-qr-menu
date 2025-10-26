@@ -13,11 +13,21 @@ router.get('/', async (req, res) => {
   }
 });
 
-// 🟢 Get a single table by table number
-router.get('/number/:tableNumber', async (req, res) => {
+// 🟢 Get a single table by table number OR qrSlug
+router.get('/m/:tableIdentifier', async (req, res) => {
   try {
-    const table = await Table.findOne({ tableNumber: req.params.tableNumber });
+    const { tableIdentifier } = req.params;
+
+    let table;
+    // Check if tableIdentifier is a number
+    if (!isNaN(tableIdentifier)) {
+      table = await Table.findOne({ tableNumber: Number(tableIdentifier) });
+    } else {
+      table = await Table.findOne({ qrSlug: tableIdentifier });
+    }
+
     if (!table) return res.status(404).json({ message: 'Table not found' });
+
     res.json(table);
   } catch (err) {
     console.error(err);
@@ -28,7 +38,7 @@ router.get('/number/:tableNumber', async (req, res) => {
 // 🟢 Add a new table
 router.post('/', async (req, res) => {
   try {
-    const { tableNumber } = req.body;
+    const { tableNumber, qrSlug } = req.body;
     if (!tableNumber) {
       return res.status(400).json({ message: 'tableNumber is required' });
     }
@@ -39,7 +49,7 @@ router.post('/', async (req, res) => {
       return res.status(400).json({ message: 'Table already exists' });
     }
 
-    const table = new Table({ tableNumber });
+    const table = new Table({ tableNumber, qrSlug });
     await table.save();
     res.status(201).json(table);
   } catch (err) {
@@ -51,11 +61,9 @@ router.post('/', async (req, res) => {
 // 🟡 Update table (e.g., mark occupied, add currentOrder)
 router.put('/:id', async (req, res) => {
   try {
-    const updatedTable = await Table.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
+    const updatedTable = await Table.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
 
     if (!updatedTable) return res.status(404).json({ message: 'Table not found' });
 
@@ -66,7 +74,7 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-// 🔴 Delete a table (optional)
+// 🔴 Delete a table
 router.delete('/:id', async (req, res) => {
   try {
     const table = await Table.findByIdAndDelete(req.params.id);

@@ -180,7 +180,7 @@ const getNextStatus = (currentStatus) => {
     >
       <div style={styles.filterButtonContent}>
         <span>{btn.label}</span>
-        {/* <span style={styles.filterCount}>{getStatusCount(btn.value)}</span> */}
+         <span style={styles.filterCount}>{getStatusCount(btn.value)}</span> 
       </div>
     </button>
   ))}
@@ -217,7 +217,7 @@ const getNextStatus = (currentStatus) => {
               <div style={styles.orderHeader}>
                 <div>
                   <h3 style={styles.orderTitle}>
-                    🪑 Table {order.tableNumber || order.table?.number || 'N/A'}
+                    🪑 Table {order.table?.tableNumber || order.table?.number || 'N/A'}
                   </h3>
                   <span style={styles.orderTime}>
                     {new Date(order.createdAt).toLocaleTimeString()}
