@@ -2,14 +2,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
-const API_URL = import.meta.env.REACT_APP_API_URL || 'http://localhost:3000/api';
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000/api';
 
 function TableManager() {
   const navigate = useNavigate();
   const [tables, setTables] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  const [tableForm, setTableForm] = useState({ number: '', qrSlug: '' });
+  const [tableForm, setTableForm] = useState({ tableNumber: '', qrSlug: '' });
 
   useEffect(() => {
     loadTables();
@@ -35,7 +35,8 @@ function TableManager() {
       if (!response.ok) throw new Error('Failed to load tables');
 
       const data = await response.json();
-      setTables(data.tables || []);
+      console.log('Tables loaded:', data); // Debug log
+      setTables(data); // setTables(data.tables) in this backend expects {table: [table array] } but this is not the response...(data); [table array only ]  simpler, if your backend always returns a direct array:
     } catch (error) {
       console.error('Load tables error:', error);
       alert('Failed to load tables');
@@ -93,7 +94,7 @@ function TableManager() {
     if (!window.confirm('Download QR codes for all tables?')) return;
 
     for (const table of tables) {
-      await downloadQR(table._id, table.number);
+      await downloadQR(table._id, table.tableNumber || table.number);
       // Small delay between downloads
       await new Promise(resolve => setTimeout(resolve, 500));
     }
@@ -102,40 +103,21 @@ function TableManager() {
   const copyMenuLink = (table) => {
     const menuUrl = `${window.location.origin}/m/${table.qrSlug}`;
     navigator.clipboard.writeText(menuUrl);
-    alert(`Menu link copied for Table ${table.number}!`);
+    alert(`Menu link copied for Table ${table.tableNumber || table.number}!`);
   };
 
   const openModal = () => {
-    setTableForm({ number: '', qrSlug: '' });
+    setTableForm({ tableNumber: '', qrSlug: '' });
     setShowModal(true);
   };
 
   const closeModal = () => {
     setShowModal(false);
-    setTableForm({ number: '', qrSlug: '' });
+    setTableForm({ tableNumber: '', qrSlug: '' });
   };
 
   return (
     <div style={styles.container}>
-      {/* Header */}
-      <div style={styles.header}>
-        <div>
-          <h1 style={styles.title}>🪑 Table Manager</h1>
-          <p style={styles.subtitle}>Manage tables and QR codes</p>
-        </div>
-        <div style={styles.headerActions}>
-          <button style={styles.backButton} onClick={() => navigate('/admin')}>
-            ← Back to Admin
-          </button>
-          <button style={styles.logoutButton} onClick={() => {
-            localStorage.removeItem('token');
-            navigate('/login');
-          }}>
-            Logout
-          </button>
-        </div>
-      </div>
-
       {/* Actions Bar */}
       <div style={styles.actionsBar}>
         <div style={styles.statsCard}>
@@ -177,7 +159,9 @@ function TableManager() {
               <div style={styles.tableHeader}>
                 <div style={styles.tableNumberBadge}>
                   <span style={styles.tableIcon}>🪑</span>
-                  <span style={styles.tableNumber}>Table {table.number}</span>
+                  <span style={styles.tableNumber}>
+                    Table {table.tableNumber || table.number}
+                  </span>
                 </div>
                 <div style={styles.statusIndicator}>
                   {table.activeSessionId ? (
@@ -218,7 +202,7 @@ function TableManager() {
               <div style={styles.cardActions}>
                 <button
                   style={styles.qrButton}
-                  onClick={() => downloadQR(table._id, table.number)}
+                  onClick={() => downloadQR(table._id, table.tableNumber || table.number)}
                 >
                   📥 Download QR
                 </button>
@@ -256,8 +240,8 @@ function TableManager() {
                 <input
                   type="number"
                   style={styles.input}
-                  value={tableForm.number}
-                  onChange={(e) => setTableForm({ ...tableForm, number: e.target.value })}
+                  value={tableForm.tableNumber}
+                  onChange={(e) => setTableForm({ ...tableForm, tableNumber: e.target.value })}
                   placeholder="Enter table number (e.g., 1, 2, 3...)"
                   required
                   autoFocus
@@ -321,51 +305,6 @@ const styles = {
     padding: '20px',
     backgroundColor: '#f8f9fa',
     minHeight: '100vh'
-  },
-  header: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: 'white',
-    padding: '28px',
-    borderRadius: '16px',
-    marginBottom: '24px',
-    boxShadow: '0 2px 12px rgba(0,0,0,0.08)'
-  },
-  title: {
-    margin: '0 0 4px 0',
-    fontSize: '32px',
-    color: '#333',
-    fontWeight: '800'
-  },
-  subtitle: {
-    margin: 0,
-    fontSize: '16px',
-    color: '#666'
-  },
-  headerActions: {
-    display: 'flex',
-    gap: '12px'
-  },
-  backButton: {
-    backgroundColor: '#fff',
-    color: '#667eea',
-    border: '2px solid #667eea',
-    padding: '12px 24px',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    fontSize: '15px',
-    fontWeight: '600'
-  },
-  logoutButton: {
-    backgroundColor: '#f44336',
-    color: 'white',
-    border: 'none',
-    padding: '12px 24px',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    fontSize: '15px',
-    fontWeight: '600'
   },
   actionsBar: {
     display: 'flex',

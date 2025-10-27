@@ -104,7 +104,7 @@ function Menu() {
       <div style={styles.hero}>
         <div style={styles.heroContent}>
           <h1 style={styles.heroTitle}>
-            🍽️ Delicious Menu
+            🍽️ Scan & Dine Menu
           </h1>
           <p style={styles.heroSubtitle}>
             {tableInfo ? `Table ${tableInfo.tableNumber} | ` : ''}Fresh & Tasty

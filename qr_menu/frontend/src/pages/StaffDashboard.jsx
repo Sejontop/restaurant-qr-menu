@@ -26,6 +26,7 @@ function StaffDashboard() {
         navigate('/login');
         return;
       }
+// const filteredOrders = orders.filter(o => o.status === filter);
 
       const params = new URLSearchParams({ status: filter });
       
@@ -129,9 +130,7 @@ const getNextStatus = (currentStatus) => {
   ];
 
   // Count orders by status
-  const getStatusCount = (status) => {
-    return orders.filter(o => o.status === status).length;
-  };
+const getStatusCount = (status) => orders.filter(o => o.status === status).length;
 
   return (
     <div style={styles.container}>
@@ -141,7 +140,7 @@ const getNextStatus = (currentStatus) => {
       </audio>
 
       {/* Header */}
-      <div style={styles.header}>
+      {/* <div style={styles.header}>
         <div>
           <h1 style={styles.title}>👨‍🍳 Staff Dashboard</h1>
           <p style={styles.subtitle}>Manage orders in real-time</p>
@@ -154,7 +153,7 @@ const getNextStatus = (currentStatus) => {
         >
           Logout
         </button>
-      </div>
+      </div> */}
 
       {/* Error message */}
       {error && (
@@ -185,7 +184,11 @@ const getNextStatus = (currentStatus) => {
     </button>
   ))}
 </div>
-
+{/* <div style={styles.ordersContainer}>
+  {filteredOrders.map(order => (
+    <OrderCard key={order._id} order={order} />
+  ))}
+</div> */}
       
       {loading ? (
         <div style={styles.loadingContainer}>
