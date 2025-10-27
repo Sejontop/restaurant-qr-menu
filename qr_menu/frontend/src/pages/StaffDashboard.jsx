@@ -7,6 +7,7 @@ const API_URL = import.meta.env.REACT_APP_API_URL || 'http://localhost:3000/api'
 function StaffDashboard() {
   const navigate = useNavigate();
   const [orders, setOrders] = useState([]);
+  const [allOrders, setAllOrders] = useState([]);
   const [filter, setFilter] = useState('pending');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -20,13 +21,13 @@ function StaffDashboard() {
   }, [filter]);
 
   const loadOrders = async () => {
+    setLoading(true);
     try {
       const token = localStorage.getItem('token');
       if (!token) {
         navigate('/login');
         return;
       }
-// const filteredOrders = orders.filter(o => o.status === filter);
 
       const params = new URLSearchParams({ status: filter });
       
@@ -57,8 +58,17 @@ function StaffDashboard() {
       const uniqueOrders = Array.from(new Map(newOrders.map(order => [order._id, order])).values());
       console.log('Unique orders:', uniqueOrders.length);
 
+      // Fetch all orders for counts (without filter)
+      const allResponse = await fetch(`${API_URL}/orders`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      if (allResponse.ok) {
+        const allData = await allResponse.json();
+        setAllOrders(allData.orders || []);
+      }
+
       // Play sound for new orders when no specific filter is selected
-      if (filter === '') {
+      if (filter === 'pending') {
         const newCount = uniqueOrders.length;
         if (newCount > lastOrderCountRef.current && lastOrderCountRef.current > 0) {
           playNotificationSound();
@@ -81,16 +91,16 @@ function StaffDashboard() {
       audioRef.current.play().catch(e => console.log('Audio play failed:', e));
     }
   };
-// Update getNextStatus function
-const getNextStatus = (currentStatus) => {
-  const flow = {
-    pending: 'placed',
-    placed: 'preparing',
-    preparing: 'ready',
-    ready: 'served'
+
+  const getNextStatus = (currentStatus) => {
+    const flow = {
+      pending: 'placed',
+      placed: 'preparing',
+      preparing: 'ready',
+      ready: 'served'
+    };
+    return flow[currentStatus];
   };
-  return flow[currentStatus];
-};
 
   const updateOrderStatus = async (orderId, newStatus) => {
     try {
@@ -129,8 +139,7 @@ const getNextStatus = (currentStatus) => {
     { value: 'served', label: '🍽️ Served', color: '#9E9E9E' }
   ];
 
-  // Count orders by status
-const getStatusCount = (status) => orders.filter(o => o.status === status).length;
+  const getStatusCount = (status) => allOrders.filter(o => o.status === status).length;
 
   return (
     <div style={styles.container}>
@@ -138,22 +147,6 @@ const getStatusCount = (status) => orders.filter(o => o.status === status).lengt
       <audio ref={audioRef}>
         <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZVA4OVK3n8bFhGQc+ltryxHUpBSuBzvLZiTcIGWi77eefTRAMUKfj8LZjHAY4ktfyy3krBSJ1xe/gkUALFF+06+yoVhQLRqHh8r9tIQU=" type="audio/wav" />
       </audio>
-
-      {/* Header */}
-      {/* <div style={styles.header}>
-        <div>
-          <h1 style={styles.title}>👨‍🍳 Staff Dashboard</h1>
-          <p style={styles.subtitle}>Manage orders in real-time</p>
-        </div>
-        <button 
-          style={styles.logoutButton} 
-          onClick={handleLogout}
-          onMouseEnter={(e) => e.target.style.backgroundColor = '#d32f2f'}
-          onMouseLeave={(e) => e.target.style.backgroundColor = '#f44336'}
-        >
-          Logout
-        </button>
-      </div> */}
 
       {/* Error message */}
       {error && (
@@ -164,31 +157,25 @@ const getStatusCount = (status) => orders.filter(o => o.status === status).lengt
       )}
 
       {/* Filter Tabs */}
-{/* // Update the grid to show 5 or 6 tabs */}
-<div style={styles.filterContainer}>
-  {statusButtons.map(btn => (
-    <button
-      key={btn.value}
-      style={{
-        ...styles.filterButton,
-        backgroundColor: filter === btn.value ? btn.color : '#fff',
-        color: filter === btn.value ? 'white' : '#333',
-        borderColor: btn.color
-      }}
-      onClick={() => setFilter(btn.value)}
-    >
-      <div style={styles.filterButtonContent}>
-        <span>{btn.label}</span>
-         <span style={styles.filterCount}>{getStatusCount(btn.value)}</span> 
+      <div style={styles.filterContainer}>
+        {statusButtons.map(btn => (
+          <button
+            key={btn.value}
+            style={{
+              ...styles.filterButton,
+              backgroundColor: filter === btn.value ? btn.color : '#fff',
+              color: filter === btn.value ? 'white' : '#333',
+              borderColor: btn.color
+            }}
+            onClick={() => setFilter(btn.value)}
+          >
+            <div style={styles.filterButtonContent}>
+              <span>{btn.label}</span>
+              <span style={styles.filterCount}>{getStatusCount(btn.value)}</span> 
+            </div>
+          </button>
+        ))}
       </div>
-    </button>
-  ))}
-</div>
-{/* <div style={styles.ordersContainer}>
-  {filteredOrders.map(order => (
-    <OrderCard key={order._id} order={order} />
-  ))}
-</div> */}
       
       {loading ? (
         <div style={styles.loadingContainer}>
@@ -253,29 +240,26 @@ const getStatusCount = (status) => orders.filter(o => o.status === status).lengt
               <div style={styles.orderFooter}>
                 <span style={styles.orderTotal}>₹{order.totalPrice?.toFixed(2) || order.totalPrice}</span>
                 <div style={styles.actionButtons}>
-
-{/*  Update the action button rendering */}
-{order.status === 'pending' && (
-  <button
-    style={{...styles.actionButton, backgroundColor: '#ff9800'}}
-    onClick={() => updateOrderStatus(order._id, 'placed')}
-    onMouseEnter={(e) => e.target.style.opacity = '0.9'}
-    onMouseLeave={(e) => e.target.style.opacity = '1'}
-  >
-    📝 Accept Order
-  </button>
-)}
-{order.status === 'placed' && (
-  <button
-    style={{...styles.actionButton, backgroundColor: '#2196F3'}}
-    onClick={() => updateOrderStatus(order._id, 'preparing')}
-    onMouseEnter={(e) => e.target.style.opacity = '0.9'}
-    onMouseLeave={(e) => e.target.style.opacity = '1'}
-  >
-    👨‍🍳 Start
-  </button>
-)}
-{/*  ... rest of the buttons */}
+                  {order.status === 'pending' && (
+                    <button
+                      style={{...styles.actionButton, backgroundColor: '#ff9800'}}
+                      onClick={() => updateOrderStatus(order._id, 'placed')}
+                      onMouseEnter={(e) => e.target.style.opacity = '0.9'}
+                      onMouseLeave={(e) => e.target.style.opacity = '1'}
+                    >
+                      📝 Accept Order
+                    </button>
+                  )}
+                  {order.status === 'placed' && (
+                    <button
+                      style={{...styles.actionButton, backgroundColor: '#2196F3'}}
+                      onClick={() => updateOrderStatus(order._id, 'preparing')}
+                      onMouseEnter={(e) => e.target.style.opacity = '0.9'}
+                      onMouseLeave={(e) => e.target.style.opacity = '1'}
+                    >
+                      👨‍🍳 Start
+                    </button>
+                  )}
                   {order.status === 'preparing' && (
                     <button
                       style={{...styles.actionButton, backgroundColor: '#4CAF50'}}
@@ -317,7 +301,6 @@ const getStatusCount = (status) => orders.filter(o => o.status === status).lengt
         </div>
       )}
 
-      {/* Add CSS for loader animation */}
       <style>{`
         @keyframes spin {
           0% { transform: rotate(0deg); }
@@ -335,38 +318,6 @@ const styles = {
     padding: '20px',
     backgroundColor: '#f8f9fa',
     minHeight: '100vh'
-  },
-  header: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: 'white',
-    padding: '28px',
-    borderRadius: '16px',
-    marginBottom: '24px',
-    boxShadow: '0 2px 12px rgba(0,0,0,0.08)'
-  },
-  title: {
-    margin: '0 0 4px 0',
-    fontSize: '32px',
-    color: '#333',
-    fontWeight: '800'
-  },
-  subtitle: {
-    margin: 0,
-    fontSize: '16px',
-    color: '#666'
-  },
-  logoutButton: {
-    backgroundColor: '#f44336',
-    color: 'white',
-    border: 'none',
-    padding: '12px 28px',
-    borderRadius: '8px',
-    cursor: 'pointer',
-    fontSize: '16px',
-    fontWeight: '600',
-    transition: 'background-color 0.3s'
   },
   errorBanner: {
     backgroundColor: '#ffebee',

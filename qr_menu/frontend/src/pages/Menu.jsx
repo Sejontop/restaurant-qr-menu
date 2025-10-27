@@ -254,6 +254,27 @@ function Menu() {
           </div>
         )}
       </div>
+       {/* Footer with Login Button */}
+      <footer style={styles.footer}>
+        <div style={styles.footerContent}>
+          <p style={styles.footerText}>🍽️ Scan & Dine Menu</p>
+          <button 
+            onClick={() => navigate('/login')}
+            style={styles.loginButton}
+            onMouseEnter={(e) => {
+              e.target.style.backgroundColor = '#5568d3';
+              e.target.style.transform = 'scale(1.05)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.backgroundColor = '#667eea';
+              e.target.style.transform = 'scale(1)';
+            }}
+          >
+            🔐 Staff/Admin Login
+          </button>
+        </div>
+      </footer>
+ 
     </div>
   );
 }
@@ -552,6 +573,39 @@ const styles = {
     fontWeight: '700',
     transition: 'all 0.3s',
     boxShadow: '0 4px 12px rgba(255,107,107,0.3)'
+  },
+   footer: {
+    backgroundColor: 'white',
+    borderTop: '2px solid #e0e0e0',
+    padding: '16px 20px',
+    boxShadow: '0 -4px 12px rgba(0,0,0,0.05)',
+    marginTop: '40px'
+  },
+  footerContent: {
+    maxWidth: '1200px',
+    margin: '0 auto',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    gap: '12px'
+  },
+  footerText: {
+    margin: 0,
+    fontSize: '14px',
+    color: '#666',
+    fontWeight: '600'
+  },
+  loginButton: {
+    backgroundColor: '#667eea',
+    color: 'white',
+    border: 'none',
+    padding: '10px 20px',
+    borderRadius: '8px',
+    fontSize: '14px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    transition: 'all 0.3s'
   }
 };
 
