@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-const Table = require('./models/Table'); // make sure path is correct
+const Table = require('./models/Table'); 
 const { nanoid } = require('nanoid');
 
 mongoose.connect('mongodb://localhost:27017/restaurantDB', {

@@ -256,7 +256,7 @@ function OrderStatus() {
 
         {/* Action Button */}
         {order.status === "served" && (
-          <button style={styles.newOrderButton} onClick={() => navigate("/")}>
+          <button style={styles.newOrderButton} onClick={() => navigate(`/m/${tableIdentifier}`)}>
             🍽️ Order Again
           </button>
         )}

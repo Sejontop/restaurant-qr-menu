@@ -1,4 +1,4 @@
-// frontend/src/pages/Menu.js - SUPER ATTRACTIVE VERSION
+// frontend/src/pages/Menu.js 
 import React, { useState, useEffect, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { CartContext } from '../context/CartContext';
@@ -16,8 +16,11 @@ function Menu() {
   const [searchTerm, setSearchTerm] = useState('');
   const [loading, setLoading] = useState(true);
   const [tableInfo, setTableInfo] = useState(null);
+  
+  
 
   const tableIdentifier = qrSlug || tableNumber;
+  const lastOrderId = localStorage.getItem(`lastOrder_table_${tableIdentifier}`);
 
   // Load functions defined inside the component so they are available to hooks
   const loadTableInfo = async () => {
@@ -258,6 +261,19 @@ function Menu() {
       <footer style={styles.footer}>
         <div style={styles.footerContent}>
           <p style={styles.footerText}>🍽️ Scan & Dine Menu</p>
+          {lastOrderId&&tableInfo&&(<button
+          style={styles.checkOrderButton}
+           onClick={()=>navigate(`/order/${lastOrderId}`)}
+            onMouseEnter={(e) => {
+              e.target.style.backgroundColor = '#5568d3';
+              e.target.style.transform = 'scale(1.05)';
+            }}
+            onMouseLeave={(e) => {
+              e.target.style.backgroundColor = '#667eea';
+              e.target.style.transform = 'scale(1)';
+            }}>
+            Check Order Status
+          </button>)}
           <button 
             onClick={() => navigate('/login')}
             style={styles.loginButton}
@@ -272,6 +288,8 @@ function Menu() {
           >
             🔐 Staff/Admin Login
           </button>
+          
+          
         </div>
       </footer>
  
@@ -595,6 +613,17 @@ const styles = {
     fontSize: '14px',
     color: '#666',
     fontWeight: '600'
+  },
+  checkOrderButton:{
+    backgroundColor: '#667eea',
+    color: 'white',
+    border: 'none',
+    padding: '10px 20px',
+    borderRadius: '8px',
+    fontSize: '14px',
+    fontWeight: '600',
+    cursor: 'pointer',
+    transition: 'all 0.3s'
   },
   loginButton: {
     backgroundColor: '#667eea',

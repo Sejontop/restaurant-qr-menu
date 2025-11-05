@@ -5,7 +5,6 @@ const { auth, authorize } = require("../middleware/auth.js");
 
 const router = express.Router();
 
-// ========== YOUR EXISTING ROUTES (UNCHANGED) ==========
 
 router.get("/", async (req, res) => {
   try {
@@ -41,7 +40,7 @@ router.post("/", async (req, res) => {
   }
 });
 
-// ========== NEW CATEGORY ROUTES ==========
+//NEW CATEGORY ROUTES 
 
 // Get all categories
 router.get("/categories/all", async (req, res) => {
@@ -117,7 +116,7 @@ router.delete("/categories/:id", auth, authorize('admin'), async (req, res) => {
   }
 });
 
-// ========== NEW MENU ITEM ROUTES ==========
+//NEW MENU ITEM ROUTES
 
 // Get menu items with filters
 router.get("/items/search", async (req, res) => {

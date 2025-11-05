@@ -47,7 +47,7 @@ function Cart() {
       const headers = {
         'Content-Type': 'application/json'
       };
-      
+
       if (token) {
         headers['Authorization'] = `Bearer ${token}`;
       }
@@ -64,22 +64,31 @@ function Cart() {
       const data = await response.json();
 
       if (!response.ok) {
-        throw new Error(data.message || 'Failed to place order');
+        throw new Error(data?.message || 'Failed to place order');
       }
 
+      // Store the order ID in localStorage
+      if (data?.order?._id) {
+         const tableIdentifier = tableInfo?.tableNumber || qrSlug;
+      localStorage.setItem(`lastOrder_table_${tableIdentifier}`, data.order._id);
+        
+      }
+
+      // Clear cart
       clearCart();
-      
+
       // Navigate to order status page
       const orderId = data.order._id;
       const guestToken = data.guestToken;
-      
+
       if (guestToken) {
         navigate(`/order/${orderId}?guestToken=${guestToken}`);
       } else {
         navigate(`/order/${orderId}`);
       }
     } catch (err) {
-      setError(err.message);
+      console.error('Error placing order:', err);
+      setError(err.message || 'Failed to place order');
     } finally {
       setLoading(false);
     }

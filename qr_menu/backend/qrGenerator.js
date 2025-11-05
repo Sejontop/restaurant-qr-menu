@@ -1,5 +1,5 @@
 const QRCode = require('qrcode');
-const Table = require('./models/Table'); // adjust path
+const Table = require('./models/Table'); 
 const mongoose = require('mongoose');
 const fs = require('fs');
 
@@ -12,11 +12,11 @@ async function generateQRCodes() {
   try {
     const tables = await Table.find({});
 
-    // Make sure folder exists
+    // if folder exists then
     if (!fs.existsSync('./qrcodes')) fs.mkdirSync('./qrcodes');
 
     for (let table of tables) {
-      const url = `http://localhost:5173/m/${table.qrSlug}`; // use your local dev URL
+      const url = `http://localhost:5173/m/${table.qrSlug}`; // local dev URL
       await QRCode.toFile(`./qrcodes/table-${table.tableNumber}.png`, url);
       console.log(`QR code generated for Table ${table.tableNumber}`);
     }

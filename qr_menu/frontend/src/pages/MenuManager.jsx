@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 
+
 const API_URL = import.meta.env.REACT_APP_API_URL || 'http://localhost:3000/api';
 
 function MenuManager() {
@@ -653,33 +654,6 @@ const styles = {
     backgroundColor: '#e3f2fd',
     color: '#1976d2',
     padding: '4px' },
-  itemMeta: {
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '10px'
-  },
-  badge: {
-    padding: '6px 12px',
-    borderRadius: '8px',
-    fontSize: '12px',
-    fontWeight: '600',
-    backgroundColor: '#eee',
-    color: '#555',
-    cursor: 'default'
-  },
-  activeBadge: { backgroundColor: '#e0f7e9', color: '#2e7d32' },
-  inactiveBadge: { backgroundColor: '#fdecea', color: '#c62828' },
-  availableBadge: { backgroundColor: '#e0f7e9', color: '#2e7d32', cursor: 'pointer' },
-  unavailableBadge: { backgroundColor: '#fdecea', color: '#c62828', cursor: 'pointer' },
-  tags: { display: 'flex', flexWrap: 'wrap', gap: '6px', marginBottom: '10px' },
-  tag: {
-    backgroundColor: '#f1f1f1',
-    borderRadius: '6px',
-    padding: '4px 8px',
-    fontSize: '12px',
-    color: '#555'
-  },
   itemActions: {
     display: 'flex',
     justifyContent: 'flex-end',
